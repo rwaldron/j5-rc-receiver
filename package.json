@@ -1,0 +1,25 @@
+{
+  "name": "j5-rc-receiver",
+  "version": "0.0.1",
+  "description": "Nintendo RC Receiver component class plugin for Johnny-Five",
+  "main": "index.js",
+  "scripts": {
+    "test": "grunt"
+  },
+  "keywords": [
+    "Arduino", "Tessel", "Edison", "Nintendo", "RC", "Receiver", "I2C", "BeagleBone", "Raspberry Pi"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-cli": "^0.1.13",
+    "grunt-contrib-jshint": "^0.11.2",
+    "grunt-contrib-nodeunit": "^0.4.1",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-jsbeautifier": "^0.2.10",
+    "grunt-jscs": "^1.8.0",
+    "sinon": "^1.14.1",
+    "es6-shim": "latest"
+  }
+}
