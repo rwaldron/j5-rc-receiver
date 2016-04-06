@@ -77,21 +77,17 @@ exports["Receiver"] = {
     test.done();
   },
 
-  length: function(test) {
-    test.expect(2);
-    test.notEqual(typeof this.receiver.length, "undefined");
-    test.equal(typeof this.receiver.length, "number");
-    test.done();
-  },
+  // length: function(test) {
+  //   test.expect(2);
+  //   test.notEqual(typeof this.receiver.length, "undefined");
+  //   test.equal(typeof this.receiver.length, "number");
+  //   test.done();
+  // },
 
   defaultInstanceProperties: function(test) {
-    test.expect(7);
+    test.expect(6);
 
     this.receiver = new Receiver(this.opts);
-
-    // Defaults to 6 Channels
-
-    test.equal(this.receiver.length, 6);
 
     for (var i = 1; i <= 6; i++) {
       test.equal(i in this.receiver, true);
@@ -101,14 +97,12 @@ exports["Receiver"] = {
   },
 
   explicitGreaterThanDefaultInstanceProperties: function(test) {
-    test.expect(9);
+    test.expect(8);
 
     this.receiver = new Receiver({
       board: this.board,
       channels: 8,
     });
-
-    test.equal(this.receiver.length, 8);
 
     for (var i = 1; i <= 8; i++) {
       test.equal(i in this.receiver, true);
@@ -118,14 +112,12 @@ exports["Receiver"] = {
   },
 
   explicitLessThanDefaultInstanceProperties: function(test) {
-    test.expect(5);
+    test.expect(4);
 
     this.receiver = new Receiver({
       board: this.board,
       channels: 4,
     });
-
-    test.equal(this.receiver.length, 4);
 
     for (var i = 1; i <= 4; i++) {
       test.equal(i in this.receiver, true);
@@ -239,6 +231,60 @@ exports["Receiver"] = {
     test.done();
   },
 
+  iterator: function(test) {
+    // test.expect();
+
+    captures.forEach(this.i2cReadHandler, this.receiver);
+
+    var array = Array.from(this.receiver);
+
+    test.equal(array[0], this.receiver[1]);
+    test.equal(array[1], this.receiver[2]);
+    test.equal(array[2], this.receiver[3]);
+    test.equal(array[3], this.receiver[4]);
+    test.equal(array[4], this.receiver[5]);
+    test.equal(array[5], this.receiver[6]);
+
+
+    test.equal(array[0], 1272);
+    test.equal(array[1], 1492);
+    test.equal(array[2], 1496);
+    test.equal(array[3], 1488);
+    test.equal(array[4], 1924);
+    test.equal(array[5], 1492);
+
+    /*
+      this.receiver;
+
+      {
+        [1]: 1272,
+        [2]: 1492,
+        [3]: 1496,
+        [4]: 1488,
+        [5]: 1924,
+        [6]: 1492,
+      }
+    */
+
+    array = Array.from(this.receiver, function(value, index) {
+      return this.receiver.channelAt(index);
+    }, this);
+
+    test.deepEqual(
+      array,
+      [
+        { name: "throttle", channel: 1, value: 1272, previous: 1348 },
+        { name: "aileron", channel: 2, value: 1492, previous: 1492 },
+        { name: "elevator", channel: 3, value: 1496, previous: 1492 },
+        { name: "rudder", channel: 4, value: 1488, previous: 1488 },
+        { name: "gear", channel: 5, value: 1924, previous: 1928 },
+        { name: "aux1", channel: 6, value: 1492, previous: 1492 },
+      ]
+    );
+
+    test.done();
+  },
+
   data: function(test) {
     test.expect(1);
 
@@ -258,26 +304,26 @@ exports["Receiver"] = {
     captures.forEach(this.i2cReadHandler, this.receiver);
 
     var expecting = [
-      [ { which: "throttle", value: 1464, previous: 0, channel: 1 } ],
-      [ { which: "aileron", value: 1496, previous: 0, channel: 2 } ],
-      [ { which: "elevator", value: 1492, previous: 0, channel: 3 } ],
-      [ { which: "rudder", value: 1488, previous: 0, channel: 4 } ],
-      [ { which: "gear", value: 1924, previous: 0, channel: 5 } ],
-      [ { which: "aux1", value: 1492, previous: 0, channel: 6 } ],
-      [ { which: "throttle", value: 1468, previous: 1464, channel: 1 } ],
-      [ { which: "aileron", value: 1492, previous: 1496, channel: 2 } ],
-      [ { which: "rudder", value: 1492, previous: 1488, channel: 4 } ],
-      [ { which: "gear", value: 1928, previous: 1924, channel: 5 } ],
-      [ { which: "throttle", value: 1376, previous: 1468, channel: 1 } ],
-      [ { which: "elevator", value: 1496, previous: 1492, channel: 3 } ],
-      [ { which: "gear", value: 1924, previous: 1928, channel: 5 } ],
-      [ { which: "throttle", value: 1348, previous: 1376, channel: 1 } ],
-      [ { which: "elevator", value: 1492, previous: 1496, channel: 3 } ],
-      [ { which: "rudder", value: 1488, previous: 1492, channel: 4 } ],
-      [ { which: "gear", value: 1928, previous: 1924, channel: 5 } ],
-      [ { which: "throttle", value: 1272, previous: 1348, channel: 1 } ],
-      [ { which: "elevator", value: 1496, previous: 1492, channel: 3 } ],
-      [ { which: "gear", value: 1924, previous: 1928, channel: 5 } ],
+      [ { name: "throttle", value: 1464, previous: 0, channel: 1 } ],
+      [ { name: "aileron", value: 1496, previous: 0, channel: 2 } ],
+      [ { name: "elevator", value: 1492, previous: 0, channel: 3 } ],
+      [ { name: "rudder", value: 1488, previous: 0, channel: 4 } ],
+      [ { name: "gear", value: 1924, previous: 0, channel: 5 } ],
+      [ { name: "aux1", value: 1492, previous: 0, channel: 6 } ],
+      [ { name: "throttle", value: 1468, previous: 1464, channel: 1 } ],
+      [ { name: "aileron", value: 1492, previous: 1496, channel: 2 } ],
+      [ { name: "rudder", value: 1492, previous: 1488, channel: 4 } ],
+      [ { name: "gear", value: 1928, previous: 1924, channel: 5 } ],
+      [ { name: "throttle", value: 1376, previous: 1468, channel: 1 } ],
+      [ { name: "elevator", value: 1496, previous: 1492, channel: 3 } ],
+      [ { name: "gear", value: 1924, previous: 1928, channel: 5 } ],
+      [ { name: "throttle", value: 1348, previous: 1376, channel: 1 } ],
+      [ { name: "elevator", value: 1492, previous: 1496, channel: 3 } ],
+      [ { name: "rudder", value: 1488, previous: 1492, channel: 4 } ],
+      [ { name: "gear", value: 1928, previous: 1924, channel: 5 } ],
+      [ { name: "throttle", value: 1272, previous: 1348, channel: 1 } ],
+      [ { name: "elevator", value: 1496, previous: 1492, channel: 3 } ],
+      [ { name: "gear", value: 1924, previous: 1928, channel: 5 } ],
     ];
 
     test.equal(this.handler.callCount, expecting.length);
@@ -307,12 +353,30 @@ exports["Receiver"] = {
 
       captures.forEach(this.i2cReadHandler, this.receiver);
 
-      test.deepEqual(this.receiver.channel(1), { name: "throttle", value: 1272, previous: 1348 });
-      test.deepEqual(this.receiver.channel(2), { name: "aileron", value: 1492, previous: 1492 });
-      test.deepEqual(this.receiver.channel(3), { name: "elevator", value: 1496, previous: 1492 });
-      test.deepEqual(this.receiver.channel(4), { name: "rudder", value: 1488, previous: 1488 });
-      test.deepEqual(this.receiver.channel(5), { name: "gear", value: 1924, previous: 1928 });
-      test.deepEqual(this.receiver.channel(6), { name: "aux1", value: 1492, previous: 1492 });
+      test.deepEqual(
+        this.receiver.channel(1),
+        { name: "throttle", channel: 1, value: 1272, previous: 1348 }
+      );
+      test.deepEqual(
+        this.receiver.channel(2),
+        { name: "aileron", channel: 2, value: 1492, previous: 1492 }
+      );
+      test.deepEqual(
+        this.receiver.channel(3),
+        { name: "elevator", channel: 3, value: 1496, previous: 1492 }
+      );
+      test.deepEqual(
+        this.receiver.channel(4),
+        { name: "rudder", channel: 4, value: 1488, previous: 1488 }
+      );
+      test.deepEqual(
+        this.receiver.channel(5),
+        { name: "gear", channel: 5, value: 1924, previous: 1928 }
+      );
+      test.deepEqual(
+        this.receiver.channel(6),
+        { name: "aux1", channel: 6, value: 1492, previous: 1492 }
+      );
 
       test.done();
     },
@@ -324,27 +388,27 @@ exports["Receiver"] = {
 
       test.deepEqual(
         this.receiver.channel("throttle"),
-        { name: "throttle", value: 1272, previous: 1348 }
+        { name: "throttle", channel: 1, value: 1272, previous: 1348 }
       );
       test.deepEqual(
         this.receiver.channel("aileron"),
-        { name: "aileron", value: 1492, previous: 1492 }
+        { name: "aileron", channel: 2, value: 1492, previous: 1492 }
       );
       test.deepEqual(
         this.receiver.channel("elevator"),
-        { name: "elevator", value: 1496, previous: 1492 }
+        { name: "elevator", channel: 3, value: 1496, previous: 1492 }
       );
       test.deepEqual(
         this.receiver.channel("rudder"),
-        { name: "rudder", value: 1488, previous: 1488 }
+        { name: "rudder", channel: 4, value: 1488, previous: 1488 }
       );
       test.deepEqual(
         this.receiver.channel("gear"),
-        { name: "gear", value: 1924, previous: 1928 }
+        { name: "gear", channel: 5, value: 1924, previous: 1928 }
       );
       test.deepEqual(
         this.receiver.channel("aux1"),
-        { name: "aux1", value: 1492, previous: 1492 }
+        { name: "aux1", channel: 6, value: 1492, previous: 1492 }
       );
 
       test.done();
@@ -357,12 +421,30 @@ exports["Receiver"] = {
 
       captures.forEach(this.i2cReadHandler, this.receiver);
 
-      test.deepEqual(this.receiver.channelAt(0), { name: "throttle", value: 1272, previous: 1348 });
-      test.deepEqual(this.receiver.channelAt(1), { name: "aileron", value: 1492, previous: 1492 });
-      test.deepEqual(this.receiver.channelAt(2), { name: "elevator", value: 1496, previous: 1492 });
-      test.deepEqual(this.receiver.channelAt(3), { name: "rudder", value: 1488, previous: 1488 });
-      test.deepEqual(this.receiver.channelAt(4), { name: "gear", value: 1924, previous: 1928 });
-      test.deepEqual(this.receiver.channelAt(5), { name: "aux1", value: 1492, previous: 1492 });
+      test.deepEqual(
+        this.receiver.channelAt(0),
+        { name: "throttle", channel: 1, value: 1272, previous: 1348 }
+      );
+      test.deepEqual(
+        this.receiver.channelAt(1),
+        { name: "aileron", channel: 2, value: 1492, previous: 1492 }
+      );
+      test.deepEqual(
+        this.receiver.channelAt(2),
+        { name: "elevator", channel: 3, value: 1496, previous: 1492 }
+      );
+      test.deepEqual(
+        this.receiver.channelAt(3),
+        { name: "rudder", channel: 4, value: 1488, previous: 1488 }
+      );
+      test.deepEqual(
+        this.receiver.channelAt(4),
+        { name: "gear", channel: 5, value: 1924, previous: 1928 }
+      );
+      test.deepEqual(
+        this.receiver.channelAt(5),
+        { name: "aux1", channel: 6, value: 1492, previous: 1492 }
+      );
 
 
       test.done();

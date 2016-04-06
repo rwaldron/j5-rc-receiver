@@ -1,3 +1,9 @@
+if (!Array.from || !Map || !Object.assign || !Symbol) {
+  require("es6-shim");
+}
+
+
+
 var Emitter = require("events").EventEmitter;
 var util = require("util");
 var priv = new Map();
@@ -14,11 +20,11 @@ var Controllers = {
 };
 
 
-function Channel(state) {
-  this.name = state.name;
-  this.value = state.value;
-  this.previous = state.previous;
-  Object.freeze(this);
+function Channel(name, channel, value, previous) {
+  this.name = name;
+  this.channel = channel;
+  this.value = value;
+  this.previous = previous;
 }
 
 module.exports = function(five) {
@@ -36,15 +42,19 @@ module.exports = function(five) {
 
       var address = opts.address || addresses[0];
       var channels = opts.channels || 6;
+      var names = channelNames.slice();
 
       if (Array.isArray(channels)) {
         // TODO: add support for custom channel names
+        names = channels.slice();
         channels = channels.length;
       }
 
       var state = {
-        channels: Array(channels).fill(0),
-        previous: Array(channels).fill(0),
+        names: names,
+        channels: Array(channels).fill(0).map(function(value, index) {
+          return new Channel(names[index], index + 1, value, value);
+        }),
       };
 
       priv.set(this, state);
@@ -55,17 +65,11 @@ module.exports = function(five) {
       var channelsDescriptor = state.channels.reduce(function(accum, channel, index) {
         accum[index + 1] = {
           get: function() {
-            return state.channels[index];
+            return state.channels[index].value;
           }
         };
         return accum;
       }, {});
-
-      channelsDescriptor.length = {
-        get: function() {
-          return channels;
-        }
-      };
 
       Object.defineProperties(this, channelsDescriptor);
 
@@ -76,22 +80,15 @@ module.exports = function(five) {
 
       // Request channel data from bus
       this.io.i2cRead(address, channels * 2, function(data) {
-
         for (var i = 0; i < channels; i++) {
-          state.previous[i] = state.channels[i];
-          state.channels[i] = five.Fn.uint16(data[i * 2], data[i * 2 + 1]);
+          state.channels[i].previous = state.channels[i].value;
+          state.channels[i].value = five.Fn.uint16(data[i * 2], data[i * 2 + 1]);
 
-          if (state.channels[i] !== state.previous[i]) {
-            var which = channelNames[i];
-            var change = {
-              which: which,
-              value: state.channels[i],
-              previous: state.previous[i],
-              channel: i + 1,
-            };
+          if (state.channels[i].value !== state.channels[i].previous) {
+            var change = Object.assign({}, state.channels[i]);
 
             this.emit("change", change);
-            this.emit("change:" + which, change);
+            this.emit("change:" + change.name, change);
           }
         }
 
@@ -101,11 +98,27 @@ module.exports = function(five) {
 
     util.inherits(Receiver, Emitter);
 
+    Receiver.prototype[Symbol.iterator] = function() {
+      var channel = 0;
+      var receiver = this;
+
+      return {
+        next: function() {
+          return ++channel in receiver ? {
+            value: receiver[channel],
+            done: false
+          } : {
+            done: true
+          };
+        },
+      };
+    };
     Receiver.prototype.channel = function(channel) {
-      var index;
+      var state = priv.get(this);
+      var index = -1;
 
       if (typeof channel === "string") {
-        index = channelNames.indexOf(channel.toLowerCase());
+        index = state.names.indexOf(channel.toLowerCase());
       } else {
         // `channel` is expected to be 1-8 (as in, not zero indexed)
         index = channel - 1;
@@ -120,12 +133,8 @@ module.exports = function(five) {
 
     Receiver.prototype.channelAt = function(index) {
       var state = priv.get(this);
-
-      return new Channel({
-        name: channelNames[index],
-        value: state.channels[index],
-        previous: state.previous[index],
-      });
+      var channel = state.channels[index];
+      return new Channel(channel.name, index + 1, channel.value, channel.previous);
     };
 
     return Receiver;
