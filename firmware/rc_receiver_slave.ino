@@ -1,4 +1,3 @@
-
 #define EI_ARDUINO_INTERRUPTED_PIN
 #include <EnableInterrupt.h>
 #include <Wire.h>
@@ -18,47 +17,21 @@ byte buffer[I2C_BUFFER_SIZE];
 int addressPins[] = { AD0, AD1 };
 int address = I2C_DEFAULT_ADDRESS;
 int first = 2;
-int channels = 3;
+int channels = 8;
 
 volatile int pulses[8];
 volatile int last_up[8];
 
 void up() {
-  uint8_t pin = arduinoInterruptedPin;
-
-//  #if DEBUG_MODE
-//    Serial.print("pin up: ");
-//    Serial.println(pin);
-//  #endif
-
-  last_up[pin - first] = micros();
+  volatile uint8_t pin = arduinoInterruptedPin;
   enableInterrupt(pin, &down, FALLING);
+  last_up[pin - first] = micros();
 }
 
 void down() {
-  uint8_t pin = arduinoInterruptedPin;
-
-//  #if DEBUG_MODE
-//    Serial.print("pin down: ");
-//    Serial.println(pin);
-//  #endif
-
-  int diff = micros() - last_up[pin - first];
-
-  if (diff > 500 && diff < 2500) {
-    pulses[pin - first] = diff;
-  }
-
-
-
-  digitalWrite(pin, HIGH);
+  volatile uint8_t pin = arduinoInterruptedPin;
   enableInterrupt(pin, &up, RISING);
-
-  #if DEBUG_MODE
-    Serial.print(pin);
-    Serial.print(": ");
-    Serial.println(pulses[pin - first]);
-  #endif
+  pulses[pin - first] = micros() - last_up[pin - first];
 }
 
 void resetState() {
@@ -66,8 +39,7 @@ void resetState() {
     pulses[i - first] = 0;
     last_up[i - first] = 0;
 
-    pinMode(i, INPUT);
-    digitalWrite(i, HIGH);
+    pinMode(i, INPUT_PULLUP);
     enableInterrupt(i, &up, RISING);
   }
 }
@@ -86,13 +58,11 @@ void setup() {
 
   address += offset;
 
-
   resetState();
 
   #if DEBUG_MODE
     Serial.begin(9600);
   #endif
-
 
   // Initialize Slave
   Wire.begin(address);
@@ -101,6 +71,13 @@ void setup() {
 }
 
 void loop() {
+  #if DEBUG_MODE
+    for (int i = first; i < first + channels - 1; i++) {
+      Serial.print(pulses[i - first]);
+      Serial.print("  - ");
+    }
+    Serial.println(pulses[channels - 1]);
+  #endif
   for (int i = 0; i < channels; i++) {
     buffer[i * 2] = pulses[i] >> 8;
     buffer[i * 2 + 1] = pulses[i] & 0xFF;
@@ -120,4 +97,3 @@ void onReceive(int count) {
     }
   }
 }
-

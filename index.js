@@ -2,12 +2,9 @@ if (!Array.from || !Map || !Object.assign || !Symbol) {
   require("es6-shim");
 }
 
-
-
 var Emitter = require("events").EventEmitter;
 var util = require("util");
 var priv = new Map();
-
 
 // TODO: should be customizable?
 var channelNames = ["throttle", "aileron", "elevator", "rudder", "gear", "aux1", "aux2", "aux3"];
@@ -18,7 +15,6 @@ var Controllers = {
   // We'll migrate to this model once we know more
   // about each type of Receiver that we want to support
 };
-
 
 function Channel(name, channel, value, previous) {
   this.name = name;
@@ -113,6 +109,7 @@ module.exports = function(five) {
         },
       };
     };
+
     Receiver.prototype.channel = function(channel) {
       var state = priv.get(this);
       var index = -1;
@@ -141,12 +138,11 @@ module.exports = function(five) {
   }());
 };
 
-
 /**
  *  To use the plugin in a program:
  *
  *  var five = require("johnny-five");
- *  var Receiver = require("component")(five);
+ *  var Receiver = require("j5-rc-receiver")(five);
  *
  *
  */
