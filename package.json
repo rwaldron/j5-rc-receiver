@@ -1,13 +1,21 @@
 {
   "name": "j5-rc-receiver",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Nintendo RC Receiver component class plugin for Johnny-Five",
   "main": "index.js",
   "scripts": {
     "test": "grunt"
   },
   "keywords": [
-    "Arduino", "Tessel", "Edison", "Nintendo", "RC", "Receiver", "I2C", "BeagleBone", "Raspberry Pi"
+    "Arduino",
+    "Tessel",
+    "Edison",
+    "Nintendo",
+    "RC",
+    "Receiver",
+    "I2C",
+    "BeagleBone",
+    "Raspberry Pi"
   ],
   "author": "",
   "license": "MIT",
