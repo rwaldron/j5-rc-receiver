@@ -11,6 +11,9 @@
   ],
   "author": "",
   "license": "MIT",
+  "dependencies": {
+    "es6-shim": "latest"
+  },
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-cli": "^0.1.13",
@@ -19,7 +22,6 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-jsbeautifier": "^0.2.10",
     "grunt-jscs": "^1.8.0",
-    "sinon": "^1.14.1",
-    "es6-shim": "latest"
+    "sinon": "^1.14.1"
   }
 }
