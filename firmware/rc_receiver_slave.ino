@@ -79,8 +79,10 @@ void loop() {
     Serial.println(pulses[channels - 1]);
   #endif
   for (int i = 0; i < channels; i++) {
+    noInterrupts();
     buffer[i * 2] = pulses[i] >> 8;
     buffer[i * 2 + 1] = pulses[i] & 0xFF;
+    interrupts();
   }
 }
 
