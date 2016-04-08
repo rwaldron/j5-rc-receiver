@@ -1,4 +1,6 @@
-require("es6-shim");
+if (!Array.from || !Map || !Object.assign || !global.Symbol) {
+  require("es6-shim");
+}
 
 var sinon = require("sinon");
 var Emitter = require("events").EventEmitter;
@@ -234,9 +236,16 @@ exports["Receiver"] = {
   iterator: function(test) {
     // test.expect();
 
+    if (global.Symbol === undefined) {
+      test.done();
+      return;
+    }
+
     captures.forEach(this.i2cReadHandler, this.receiver);
 
     var array = Array.from(this.receiver);
+
+    console.log(array);
 
     test.equal(array[0], this.receiver[1]);
     test.equal(array[1], this.receiver[2]);

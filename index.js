@@ -1,10 +1,11 @@
-if (!Array.from || !Map || !Object.assign || !Symbol) {
+if (!Array.from || !Map || !Object.assign || !global.Symbol) {
   require("es6-shim");
 }
 
 var Emitter = require("events").EventEmitter;
 var util = require("util");
 var priv = new Map();
+var iterator = "@@iterator";
 
 // TODO: should be customizable?
 var channelNames = ["throttle", "aileron", "elevator", "rudder", "gear", "aux1", "aux2", "aux3"];
@@ -94,7 +95,11 @@ module.exports = function(five) {
 
     util.inherits(Receiver, Emitter);
 
-    Receiver.prototype[Symbol.iterator] = function() {
+    if (typeof Symbol !== "undefined" && typeof Symbol.iterator !== "undefined") {
+      iterator = Symbol.iterator;
+    }
+
+    Receiver.prototype[iterator] = function() {
       var channel = 0;
       var receiver = this;
 

@@ -71,7 +71,7 @@ When `channels: [...]` are specified, the length is used to set the channel coun
 
 #### Iterable/Iterator Protocol
 
-Receiver objects implement the [Iterable Protocol](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#iterable).
+For code running in Node.js 4.2.x or newer, `Receiver` objects implement the [Iterable Protocol](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols#iterable).
 
 ```js
 var receiver = new Receiver();
