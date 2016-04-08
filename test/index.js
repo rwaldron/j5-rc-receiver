@@ -336,38 +336,6 @@ exports["Receiver"] = {
   },
 
 
-  changeQualified: function(test) {
-    test.expect(21);
-
-    var channelNames = ["throttle", "aileron", "elevator", "rudder", "gear", "aux1"];
-    var receiverOn = sandbox.spy(this.receiver, "on");
-
-    channelNames.forEach(function(name) {
-      this.receiver.on("change:" + name, this.handler);
-    }, this);
-
-    captures.forEach(this.i2cReadHandler, this.receiver);
-
-    var expecting = [
-      [ "change:throttle" ],
-      [ "change:aileron" ],
-      [ "change:elevator" ],
-      [ "change:rudder" ],
-      [ "change:gear" ],
-      [ "change:aux1" ],
-    ];
-
-    test.equal(this.handler.callCount, expecting.length);
-
-
-    expecting.forEach(function(args, index) {
-      console.log(receiverOn.getCall(index).args);
-      // test.deepEqual(this.handler.getCall(index).args, expecting[index]);
-    }, this);
-
-    test.done();
-  },
-
   "Receiver.prototype.channel(channel|name)": {
 
     notZeroIndexed: function(test) {
