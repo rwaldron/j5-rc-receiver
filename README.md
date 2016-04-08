@@ -114,7 +114,7 @@ Using the Arduino IDE, install the [firmware](https://github.com/rwaldron/j5-rc-
 
 ### Arduino UNO
 
-[![RC Receiver, I2C Nano Backpack + Arduino Uno](https://raw.githubusercontent.com/rwaldron/j5-rc-receiver/master/assets/rc-receiver-backpack-arduino-small.png)](https://raw.githubusercontent.com/rwaldron/j5-rc-receiver/master/assets/rc-receiver-backpack-arduino.png)
+[![RC Receiver, I2C Nano Backpack + Arduino Uno](https://raw.githubusercontent.com/rwaldron/j5-rc-receiver/master/assets/rc-receiver-backpack-arduino.png)](https://raw.githubusercontent.com/rwaldron/j5-rc-receiver/master/assets/rc-receiver-backpack-arduino.png)
 
 ```js
 var five = require("johnny-five");
