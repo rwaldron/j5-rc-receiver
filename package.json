@@ -1,6 +1,6 @@
 {
   "name": "j5-rc-receiver",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Nintendo RC Receiver component class plugin for Johnny-Five",
   "main": "index.js",
   "scripts": {
